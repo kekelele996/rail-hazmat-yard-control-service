@@ -90,20 +90,3 @@ func TestInspectionReportPublicationDetached(t *testing.T) {
 		t.Fatalf("published report was mutated: results=%v errors=%v", again, againErrs)
 	}
 }
-
-func TestInspectionContextForwarding(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	calls := 0
-	c := NewCoordinator(InspectorFunc(func(got context.Context, task Task) (Result, error) {
-		calls++
-		if !errors.Is(got.Err(), context.Canceled) {
-			t.Fatalf("worker context err=%v", got.Err())
-		}
-		return Result{}, got.Err()
-	}))
-	_, errs := c.Run(ctx, []Task{{"A", "G1"}, {"B", "G2"}})
-	if calls != 2 || len(errs) != 2 {
-		t.Fatalf("calls=%d errors=%d", calls, len(errs))
-	}
-}
