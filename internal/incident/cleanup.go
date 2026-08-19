@@ -4,8 +4,5 @@ func Finalize(primary error, closeFn func() error) error {
 	if closeFn == nil {
 		return primary
 	}
-	if err := closeFn(); err != nil {
-		return err
-	}
-	return primary
+	return MergeErrors(primary, closeFn())
 }

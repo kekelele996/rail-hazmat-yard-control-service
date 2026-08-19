@@ -37,12 +37,7 @@ func (r *Resource) Close() error {
 func (t *ResourceTracker) OpenCount() int { t.mu.Lock(); defer t.mu.Unlock(); return t.open }
 func ProcessBatch(items []string, t *ResourceTracker, handle func(string) error) error {
 	for _, item := range items {
-		r, err := t.Open()
-		if err != nil {
-			return err
-		}
-		defer r.Close()
-		if err = handle(item); err != nil {
+		if err := processOne(item, t, handle); err != nil {
 			return err
 		}
 	}
@@ -53,6 +48,10 @@ func processOne(item string, t *ResourceTracker, handle func(string) error) (err
 	if err != nil {
 		return err
 	}
-	defer r.Close()
+	defer func() {
+		if closeErr := r.Close(); err == nil {
+			err = closeErr
+		}
+	}()
 	return handle(item)
 }

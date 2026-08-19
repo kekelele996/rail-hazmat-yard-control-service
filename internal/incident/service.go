@@ -1,16 +1,24 @@
 package incident
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 type Service struct{}
 
 func (Service) Record(tx *Tx, validate func() error, write func() error) (err error) {
-	defer func() { err = tx.Commit() }()
 	if err = validate(); err != nil {
-		return err
+		_ = tx.Rollback()
+		return fmt.Errorf("validate incident: %w", err)
 	}
 	if err = write(); err != nil {
-		return err
+		_ = tx.Rollback()
+		return fmt.Errorf("write incident: %w", err)
+	}
+	if err = tx.Commit(); err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("commit incident: %w", err)
 	}
 	return nil
 }
