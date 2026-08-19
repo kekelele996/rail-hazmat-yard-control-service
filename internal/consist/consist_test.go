@@ -7,12 +7,13 @@ import (
 
 func TestConsistFilteringDoesNotMutateInput(t *testing.T) {
 	in := []Wagon{{"A", false, ""}, {"B", true, ""}, {"C", false, ""}}
-	before := Clone(in)
+	before := []Wagon{{"A", false, ""}, {"B", true, ""}, {"C", false, ""}}
 	_ = HazardOnly(in)
 	if !reflect.DeepEqual(in, before) {
 		t.Fatalf("input changed: %#v", in)
 	}
 }
+
 func TestConsistPlanSlicesAreIndependent(t *testing.T) {
 	p := BuildPlan([]Wagon{{"A", true, ""}, {"B", true, ""}}, "T9")
 	p.Routed[0].ID = "changed"
@@ -20,6 +21,7 @@ func TestConsistPlanSlicesAreIndependent(t *testing.T) {
 		t.Fatal("plan slices share storage")
 	}
 }
+
 func TestConsistReservationReturnsDetachedPlan(t *testing.T) {
 	b := NewReservationBook()
 	b.Save("P", BuildPlan([]Wagon{{"A", true, ""}}, "T1"))

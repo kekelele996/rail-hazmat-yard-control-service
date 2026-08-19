@@ -16,11 +16,4 @@ func Observe(l *Ledger) View {
 	}
 	return v
 }
-func (v View) Clone() View {
-	out := make(map[string]Slot, len(v.Slots))
-	for k, s := range v.Slots {
-		out[k] = s
-	}
-	v.Slots = out
-	return v
-}
+func (v View) Clone() View { return v }
