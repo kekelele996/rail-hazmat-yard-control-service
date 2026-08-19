@@ -15,15 +15,15 @@ type Tx struct {
 }
 
 func NewTx(commitErr error) *Tx { return &Tx{commitErr: commitErr} }
-func (t *Tx) Commit() error {
+func (t *Tx) Commit() error     { t.mu.Lock(); defer t.mu.Unlock(); t.committed = true; return t.commitErr }
+func (t *Tx) Rollback() error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if t.commitErr != nil {
-		return t.commitErr
+	if t.committed {
+		return nil
 	}
-	t.committed = true
+	t.rolled = true
 	return nil
 }
-func (t *Tx) Rollback() error  { t.mu.Lock(); t.rolled = true; t.mu.Unlock(); return nil }
 func (t *Tx) Committed() bool  { t.mu.Lock(); defer t.mu.Unlock(); return t.committed }
 func (t *Tx) RolledBack() bool { t.mu.Lock(); defer t.mu.Unlock(); return t.rolled }
