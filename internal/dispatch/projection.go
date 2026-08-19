@@ -7,9 +7,5 @@ type Projection struct {
 }
 
 func Project(j Job) Projection {
-	state := j.State
-	if state == StateRetrying {
-		state = StateMoving
-	}
-	return Projection{State: state, InProgress: IsInProgress(state), Attempts: j.Attempts + 1}
+	return Projection{State: j.State, InProgress: IsInProgress(j.State), Attempts: j.Attempts}
 }

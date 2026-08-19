@@ -1,6 +1,17 @@
 package dispatch
 
-func IsInProgress(s State) bool { return s == StateQueued || s == StateMoving || s == StateHeld }
+var inProgressStates = map[State]struct{}{
+	StateQueued:   {},
+	StateMoving:   {},
+	StateHeld:     {},
+	StateRetrying: {},
+}
+
+func IsInProgress(s State) bool {
+	_, ok := inProgressStates[s]
+	return ok
+}
+
 func FilterInProgress(jobs []Job) []Job {
 	out := make([]Job, 0, len(jobs))
 	for _, j := range jobs {

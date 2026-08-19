@@ -7,6 +7,7 @@ type Job struct {
 	State    State
 	Attempts int
 }
+
 type Service struct {
 	mu   sync.Mutex
 	jobs map[string]Job
@@ -15,18 +16,23 @@ type Service struct {
 func NewService() *Service   { return &Service{jobs: make(map[string]Job)} }
 func (s *Service) Put(j Job) { s.mu.Lock(); s.jobs[j.ID] = j; s.mu.Unlock() }
 func (s *Service) Move(id string, to State) error {
+	return s.MovePath(id, []State{to})
+}
+func (s *Service) MovePath(id string, path []State) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	j := s.jobs[id]
-	next, err := Transition(j.State, to)
+	job := s.jobs[id]
+	next, err := ApplyPath(job.State, path)
 	if err != nil {
 		return err
 	}
-	j.State = next
-	if to == StateRetrying || to == StateMoving {
-		j.Attempts++
+	for _, state := range path {
+		if state == StateRetrying {
+			job.Attempts++
+		}
 	}
-	s.jobs[id] = j
+	job.State = next
+	s.jobs[id] = job
 	return nil
 }
 func (s *Service) Get(id string) (Job, bool) {

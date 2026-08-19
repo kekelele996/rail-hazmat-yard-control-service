@@ -4,8 +4,13 @@ type Worker struct{ service *Service }
 
 func NewWorker(s *Service) *Worker { return &Worker{service: s} }
 func (w *Worker) Recover(id string) error {
-	if err := w.service.Move(id, StateRetrying); err != nil {
+	job, ok := w.service.Get(id)
+	if !ok {
+		return nil
+	}
+	path, err := RecoveryPath(job.State)
+	if err != nil {
 		return err
 	}
-	return w.service.Move(id, StateMoving)
+	return w.service.MovePath(id, path)
 }
