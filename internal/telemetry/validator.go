@@ -2,7 +2,6 @@ package telemetry
 
 import (
 	"fmt"
-	"reflect"
 	"time"
 )
 
@@ -16,17 +15,7 @@ type Validator interface{ Validate(Reading) error }
 type ValidatorFunc func(Reading) error
 
 func (f ValidatorFunc) Validate(r Reading) error { return f(r) }
-func isNilDecoder(d Decoder) bool {
-	if d == nil {
-		return true
-	}
-	v := reflect.ValueOf(d)
-	switch v.Kind() {
-	case reflect.Pointer, reflect.Map, reflect.Func, reflect.Interface, reflect.Slice:
-		return v.IsNil()
-	}
-	return false
-}
+func isNilDecoder(d Decoder) bool                { return d == nil }
 func validateReading(r Reading) error {
 	if r.WagonID == "" || r.Kind == "" {
 		return fmt.Errorf("missing telemetry identity")

@@ -1,3 +1,3 @@
 package telemetry
 
-func DecoderAvailable(d Decoder) bool { return !isNilDecoder(d) }
+func DecoderAvailable(d Decoder) bool { return d != nil }
