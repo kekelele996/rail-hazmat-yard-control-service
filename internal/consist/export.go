@@ -1,3 +1,3 @@
 package consist
 
-func ExportPlan(p Plan) Plan { return p }
+func ExportPlan(p Plan) Plan { return p.Clone() }
