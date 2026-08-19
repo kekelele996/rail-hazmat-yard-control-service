@@ -12,6 +12,7 @@ func (s *Sink) Add(r Result, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err != nil {
+		s.errs = append(s.errs, err)
 		return
 	}
 	s.results = append(s.results, r)
