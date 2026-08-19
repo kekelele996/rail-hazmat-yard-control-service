@@ -1,19 +1,13 @@
 package occupancy
 
-import "fmt"
-
 type Allocator struct{ ledger *Ledger }
 
 func NewAllocator(l *Ledger) *Allocator { return &Allocator{ledger: l} }
+
+// Move is a thin wrapper over Ledger.Move, which performs the relocate as a
+// single atomic revision. Earlier versions read a snapshot, released, and
+// reserved in separate locked steps, which both published two revisions per
+// move and left a check-then-act window for concurrent allocators.
 func (a *Allocator) Move(consist, from, to, class string) error {
-	slots, _ := a.ledger.Snapshot()
-	if current, ok := slots[from]; !ok || current.Consist != consist {
-		return fmt.Errorf("consist %s not on %s", consist, from)
-	}
-	if _, busy := slots[to]; busy {
-		return fmt.Errorf("track %s occupied", to)
-	}
-	a.ledger.Release(from)
-	a.ledger.Reserve(Slot{Track: to, Consist: consist, HazardClass: class})
-	return nil
+	return a.ledger.Move(consist, from, to, class)
 }
