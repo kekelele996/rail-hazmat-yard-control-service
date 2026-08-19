@@ -12,7 +12,10 @@ type Pipeline struct {
 
 func NewPipeline(r *Repository, v Verifier) *Pipeline { return &Pipeline{repo: r, verifier: v} }
 func (p *Pipeline) Clear(ctx context.Context, id string) error {
-	if err := verifyWithRetry(context.Background(), p.verifier, id, 3); err != nil {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if err := verifyWithRetry(ctx, p.verifier, id, 3); err != nil {
 		return fmt.Errorf("verify clearance %s: %w", id, err)
 	}
 	if err := p.repo.Save(ctx, Record{ConsistID: id, Cleared: true}); err != nil {

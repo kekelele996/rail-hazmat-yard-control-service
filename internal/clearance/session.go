@@ -3,5 +3,8 @@ package clearance
 import "context"
 
 func RunSession(ctx context.Context, p *Pipeline, id string) error {
-	return p.Clear(context.Background(), id)
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return p.Clear(ctx, id)
 }
