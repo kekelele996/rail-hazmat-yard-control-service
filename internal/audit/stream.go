@@ -17,15 +17,18 @@ func NewStream(src Source, sink Sink, cp *Checkpoint) *Stream {
 func (s *Stream) Run(ctx context.Context, limit int) error {
 	seq := s.checkpoint.Load()
 	for n := 0; n < limit; n++ {
-		event, err := s.source.Next(context.Background(), seq+1)
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		event, err := s.source.Next(ctx, seq+1)
 		if err != nil {
 			return fmt.Errorf("read audit event %d: %w", seq+1, err)
 		}
-		s.checkpoint.Commit(event.Sequence)
-		seq = event.Sequence
-		if err = s.sink.Deliver(context.Background(), event); err != nil {
+		if err = s.sink.Deliver(ctx, event); err != nil {
 			return fmt.Errorf("deliver audit event %d: %w", event.Sequence, err)
 		}
+		s.checkpoint.Commit(event.Sequence)
+		seq = event.Sequence
 	}
 	return nil
 }
