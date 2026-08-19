@@ -5,7 +5,7 @@ func Finalize(primary error, closeFn func() error) error {
 		return primary
 	}
 	if err := closeFn(); err != nil {
-		return err
+		return MergeErrors(primary, err)
 	}
 	return primary
 }

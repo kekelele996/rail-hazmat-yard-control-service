@@ -5,11 +5,16 @@ import "errors"
 type Service struct{}
 
 func (Service) Record(tx *Tx, validate func() error, write func() error) (err error) {
-	defer func() { err = tx.Commit() }()
 	if err = validate(); err != nil {
+		_ = tx.Rollback()
 		return err
 	}
 	if err = write(); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	if err = tx.Commit(); err != nil {
+		_ = tx.Rollback()
 		return err
 	}
 	return nil

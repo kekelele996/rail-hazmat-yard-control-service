@@ -37,12 +37,9 @@ func (r *Resource) Close() error {
 func (t *ResourceTracker) OpenCount() int { t.mu.Lock(); defer t.mu.Unlock(); return t.open }
 func ProcessBatch(items []string, t *ResourceTracker, handle func(string) error) error {
 	for _, item := range items {
-		r, err := t.Open()
-		if err != nil {
-			return err
-		}
-		defer r.Close()
-		if err = handle(item); err != nil {
+		// Delegate to processOne so each resource is released as soon as the
+		// item is handled, rather than being held until the whole batch returns.
+		if err := processOne(item, t, handle); err != nil {
 			return err
 		}
 	}

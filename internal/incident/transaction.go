@@ -15,7 +15,17 @@ type Tx struct {
 }
 
 func NewTx(commitErr error) *Tx { return &Tx{commitErr: commitErr} }
-func (t *Tx) Commit() error     { t.mu.Lock(); defer t.mu.Unlock(); t.committed = true; return t.commitErr }
+func (t *Tx) Commit() error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.commitErr != nil {
+		// A failed commit must not mark the transaction as committed, otherwise
+		// a subsequent Rollback would treat it as already settled.
+		return t.commitErr
+	}
+	t.committed = true
+	return nil
+}
 func (t *Tx) Rollback() error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
