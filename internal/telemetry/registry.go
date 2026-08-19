@@ -12,6 +12,12 @@ func NewRegistry() *Registry { return &Registry{decoders: make(map[string]Decode
 func (r *Registry) Register(kind string, d Decoder) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if isNilDecoder(d) {
+		return
+	}
+	if r.decoders == nil {
+		r.decoders = make(map[string]Decoder)
+	}
 	r.decoders[kind] = d
 }
 func (r *Registry) Lookup(kind string) (Decoder, bool) {

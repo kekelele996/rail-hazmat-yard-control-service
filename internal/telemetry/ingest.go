@@ -21,7 +21,7 @@ func (i *Ingestor) Ingest(kind string, payload []byte) error {
 	if err = validateReading(reading); err != nil {
 		return err
 	}
-	if i.validator == nil {
+	if i.validator != nil {
 		if err = i.validator.Validate(reading); err != nil {
 			return fmt.Errorf("validate reading: %w", err)
 		}
