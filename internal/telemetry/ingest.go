@@ -1,6 +1,9 @@
 package telemetry
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type Ingestor struct {
 	registry  *Registry
@@ -21,7 +24,7 @@ func (i *Ingestor) Ingest(kind string, payload []byte) error {
 	if err = validateReading(reading); err != nil {
 		return err
 	}
-	if i.validator == nil {
+	if !isNilInterface(i.validator) {
 		if err = i.validator.Validate(reading); err != nil {
 			return fmt.Errorf("validate reading: %w", err)
 		}
@@ -29,5 +32,15 @@ func (i *Ingestor) Ingest(kind string, payload []byte) error {
 	i.accepted = append(i.accepted, reading)
 	return nil
 }
-func (i *Ingestor) Accepted() []Reading { return i.accepted }
-func isNilInterface(v any) bool         { return v == nil }
+func (i *Ingestor) Accepted() []Reading { return append([]Reading(nil), i.accepted...) }
+func isNilInterface(v any) bool {
+	if v == nil {
+		return true
+	}
+	rv := reflect.ValueOf(v)
+	switch rv.Kind() {
+	case reflect.Pointer, reflect.Map, reflect.Func, reflect.Interface, reflect.Slice:
+		return rv.IsNil()
+	}
+	return false
+}
