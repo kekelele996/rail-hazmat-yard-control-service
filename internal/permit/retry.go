@@ -2,8 +2,6 @@ package permit
 
 import (
 	"context"
-	"errors"
-	"rail-hazmat-yard-control-service/internal/platform"
 	"time"
 )
 
@@ -26,12 +24,6 @@ func (s *Service) Issue(ctx context.Context, r Request) (string, error) {
 		id, err = callGateway(ctx, s.gateway, r)
 		if err == nil {
 			return id, nil
-		}
-		if errors.Is(err, ErrPermitDenied) || errors.Is(err, platform.ErrUnauthorized) {
-			return "", err
-		}
-		if !errors.Is(err, ErrAuthorityBusy) && !errors.Is(err, platform.ErrUnavailable) {
-			return "", err
 		}
 		select {
 		case <-ctx.Done():
