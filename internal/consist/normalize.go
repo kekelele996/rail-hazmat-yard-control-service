@@ -6,16 +6,9 @@ type Wagon struct {
 	Track  string
 }
 
-func Clone(in []Wagon) []Wagon {
-	if in == nil {
-		return nil
-	}
-	out := make([]Wagon, len(in))
-	copy(out, in)
-	return out
-}
+func Clone(in []Wagon) []Wagon { return in }
 func HazardOnly(in []Wagon) []Wagon {
-	out := make([]Wagon, 0, len(in))
+	out := in[:0]
 	for _, w := range in {
 		if w.Hazard {
 			out = append(out, w)
@@ -24,9 +17,8 @@ func HazardOnly(in []Wagon) []Wagon {
 	return out
 }
 func AssignTrack(in []Wagon, track string) []Wagon {
-	out := Clone(in)
-	for i := range out {
-		out[i].Track = track
+	for i := range in {
+		in[i].Track = track
 	}
-	return out
+	return in
 }
