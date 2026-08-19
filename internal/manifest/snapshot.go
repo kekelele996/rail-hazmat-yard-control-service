@@ -1,6 +1,10 @@
 package manifest
 
-func cloneCars(in []Car) []Car { return in }
+func cloneCars(in []Car) []Car {
+	out := make([]Car, len(in))
+	copy(out, in)
+	return out
+}
 
 type View struct {
 	Cars        []Car
@@ -17,4 +21,10 @@ func NewView(cars []Car, revision int) View {
 	}
 	return v
 }
-func (v View) Clone() View { return v }
+func (v View) Clone() View {
+	return View{
+		Cars:        cloneCars(v.Cars),
+		Revision:    v.Revision,
+		HazardCount: v.HazardCount,
+	}
+}

@@ -13,8 +13,7 @@ func (s *Service) Refresh() View {
 	cars, rev := s.store.Snapshot()
 	next := NewView(cars, rev)
 	s.mu.Lock()
-	s.latest.Cars = next.Cars
-	s.latest.HazardCount = next.HazardCount
+	s.latest = next
 	s.mu.Unlock()
 	return next
 }

@@ -18,7 +18,7 @@ func NewStore(seed []Car) *Store { return &Store{cars: seed, revision: 1} }
 func (s *Store) Snapshot() ([]Car, int) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return s.cars, s.revision
+	return cloneCars(s.cars), s.revision
 }
 func (s *Store) Append(car Car) int {
 	s.mu.Lock()
