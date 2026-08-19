@@ -5,7 +5,12 @@ import "context"
 type Coordinator struct{ inspector Inspector }
 
 func NewCoordinator(i Inspector) *Coordinator { return &Coordinator{inspector: i} }
-func completionTarget(tasks []Task) int       { return len(tasks) }
+func completionTarget(tasks []Task) int {
+	if len(tasks) > 0 {
+		return 1
+	}
+	return 0
+}
 func (c *Coordinator) Run(ctx context.Context, tasks []Task) ([]Result, []error) {
 	sink := &Sink{}
 	done := make(chan struct{}, len(tasks))

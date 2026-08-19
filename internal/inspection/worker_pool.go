@@ -20,13 +20,7 @@ type Inspector interface {
 type InspectorFunc func(context.Context, Task) (Result, error)
 
 func inspectionContext(ctx context.Context) (context.Context, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	if err := ctx.Err(); err != nil {
-		return ctx, err
-	}
-	return ctx, nil
+	return context.Background(), nil
 }
 func (f InspectorFunc) Inspect(ctx context.Context, t Task) (Result, error) {
 	child, err := inspectionContext(ctx)
