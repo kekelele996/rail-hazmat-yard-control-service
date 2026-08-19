@@ -13,10 +13,9 @@ func (s *Service) Refresh() View {
 	cars, rev := s.store.Snapshot()
 	next := NewView(cars, rev)
 	s.mu.Lock()
-	s.latest.Cars = next.Cars
-	s.latest.HazardCount = next.HazardCount
+	s.latest = next
 	s.mu.Unlock()
-	return next
+	return next.Clone()
 }
-func (s *Service) Current() View            { s.mu.RLock(); defer s.mu.RUnlock(); return s.latest }
-func (s *Service) AddAndRefresh(c Car) View { s.store.Append(c); s.Refresh(); return s.Current() }
+func (s *Service) Current() View            { s.mu.RLock(); defer s.mu.RUnlock(); return s.latest.Clone() }
+func (s *Service) AddAndRefresh(c Car) View { s.store.Append(c); return s.Refresh() }

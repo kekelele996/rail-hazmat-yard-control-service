@@ -14,11 +14,11 @@ type Store struct {
 	revision int
 }
 
-func NewStore(seed []Car) *Store { return &Store{cars: seed, revision: 1} }
+func NewStore(seed []Car) *Store { return &Store{cars: cloneCars(seed), revision: 1} }
 func (s *Store) Snapshot() ([]Car, int) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return s.cars, s.revision
+	return cloneCars(s.cars), s.revision
 }
 func (s *Store) Append(car Car) int {
 	s.mu.Lock()
@@ -31,11 +31,13 @@ func (s *Store) Append(car Car) int {
 func (s *Store) ReplaceSeal(id, seal string) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	for i := range s.cars {
-		if s.cars[i].ID == id {
+	next := cloneCars(s.cars)
+	for i := range next {
+		if next[i].ID == id {
 			s.revision++
-			s.cars[i].Seal = seal
-			s.cars[i].Revision = s.revision
+			next[i].Seal = seal
+			next[i].Revision = s.revision
+			s.cars = next
 			return true
 		}
 	}
