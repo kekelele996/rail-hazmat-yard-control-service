@@ -1,0 +1,14 @@
+{
+  "mode": "service",
+  "start": "go run ./cmd/server",
+  "workdir": ".",
+  "env": {
+    "PORT": "18080",
+    "YARD_CODE": "NORTH-TRANSFER"
+  },
+  "ready_url": "http://127.0.0.1:18080/health",
+  "ready_status": [
+    200
+  ],
+  "startup_timeout": 30
+}
