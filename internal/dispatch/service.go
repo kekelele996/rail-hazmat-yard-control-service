@@ -15,11 +15,9 @@ type Service struct {
 
 func NewService() *Service   { return &Service{jobs: make(map[string]Job)} }
 func (s *Service) Put(j Job) { s.mu.Lock(); s.jobs[j.ID] = j; s.mu.Unlock() }
-
 func (s *Service) Move(id string, to State) error {
 	return s.MovePath(id, []State{to})
 }
-
 func (s *Service) MovePath(id string, path []State) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -37,7 +35,6 @@ func (s *Service) MovePath(id string, path []State) error {
 	s.jobs[id] = job
 	return nil
 }
-
 func (s *Service) Get(id string) (Job, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

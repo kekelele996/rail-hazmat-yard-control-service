@@ -19,20 +19,19 @@ type Inspector interface {
 }
 type InspectorFunc func(context.Context, Task) (Result, error)
 
-func inspectionContext(ctx context.Context) (context.Context, error) {
+func inspectionContext(ctx context.Context) (context.Context, context.CancelFunc, error) {
 	if ctx == nil {
-		ctx = context.Background()
+		return context.Background(), func() {}, nil
 	}
-	if err := ctx.Err(); err != nil {
-		return ctx, err
-	}
-	return ctx, nil
+	child, cancel := context.WithCancel(ctx)
+	return child, cancel, nil
 }
 func (f InspectorFunc) Inspect(ctx context.Context, t Task) (Result, error) {
-	child, err := inspectionContext(ctx)
+	child, cancel, err := inspectionContext(ctx)
 	if err != nil {
 		return Result{}, err
 	}
+	defer cancel()
 	return f(child, t)
 }
 func validateTask(t Task) error {
